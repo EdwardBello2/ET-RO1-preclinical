@@ -1,0 +1,43 @@
+% script for partially loading single channels from the large
+% amplifier_data file, and saving them singly for later artifact viewing
+
+clear
+
+% Create mat file object for interacting with large data
+[file, path] = uigetfile();
+cd(path);
+matObj = matfile(file);
+
+
+% iterate thru all channels
+[nChans,len] = size(matObj, 'data');
+
+chans = [17,31,32,33,34,38,39,46,48,53,58,62,66,67,73,74,77,83,84,87,88,89,96,97,98,99,101]
+
+for iChan = chans
+    clear data
+    % Specify channel and label
+    ch = iChan;
+    label = ['A-' num2str(ch-1, '%03d')];
+    tic
+    data(1,len) = 0;
+   
+    data = matObj.data(ch,1:len);
+    toc
+
+%     figure; plot(data)
+    % save mat file
+    save([],'mycopy_durer.mat','-v7.3');
+    
+    
+end
+
+
+nout = 0;
+while(nout < size)
+    fprintf('Writing %d of %d\n',nout,size);
+    chunkSize = min(chunk,size-nout);
+    data = mean + std * randn(1,chunkSize);
+    matObj.data(1,(nout+1):(nout+chunkSize)) = data;
+    nout = nout + chunkSize;
+end
